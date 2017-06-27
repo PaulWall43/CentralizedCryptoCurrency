@@ -1,0 +1,18 @@
+- Scrooge recieves transactions from users. You will implement the logic used by Scrooge 
+
+- We are processing transactions and producing a "ledger"
+- Scrooge organizes transactions into time periods or blocks
+- Each block he recieves has a list of transactions, he validates the transactions and publishes the list of validated transactions
+---- If a transaction is not valid, do the other transactions in the block still get published, or is the whole thing nullified?
+----  I think you publish the largest blocks that are still valid
+
+Classes: 
+Transaction.java = ScroogeCoin transaction and has inner classes Transaction.Output and Transaction.Input
+
+- The Output is valie and public key to which money is being paid. Public key uses the Java defined PublicKey class
+
+- Input has the hash of the transaction that contains the:
+-- corresponding output of the index of this output in that transaction
+-- Digital signature
+-- To be valid the signature must be valid signature over current transaction with the public key in the spent output
+
