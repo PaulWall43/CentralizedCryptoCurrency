@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 public class TxHandler {
 
 
@@ -27,7 +28,7 @@ public class TxHandler {
         int outputTotal = 0;
         for(int i = 0; i < tx.numInputs(); i++){
             Transaction.Input in = tx.getInput(i);
-            UTXO u = new UTXO(prevTxHash, outputIndex);
+            UTXO u = new UTXO(in.prevTxHash, in.outputIndex);
             Transaction.Output o = pool.getTxOutput(u);
 
             //(1) 
@@ -43,7 +44,6 @@ public class TxHandler {
             else {in_outs.add(u);}
             //(5)
             inputTotal += o.value;
-
         }
         for(int i = 0; i < tx.numOutputs(); i++){
             //(4) 
@@ -62,8 +62,14 @@ public class TxHandler {
      * updating the current UTXO pool as appropriate.
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
-        // IMPLEMENT THIS
-        return null;
+        List<Transaction> v_trans = new ArrayList<Transaction>();
+        for(int i = 0; i < possibleTxs.length; i++){
+            Transaction t = possibleTxs[i];
+            if(t.isValidTx()){
+                v_trans.add(t);
+            }
+        }
+        return v_trans.toArray(new Transaction[v_trans.size()]);
     }
 
 }
