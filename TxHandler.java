@@ -50,7 +50,7 @@ public class TxHandler {
             Transaction.Output o = tx.getOutput(i);
             if(o.value < 0){return false;}
             //(5)
-            outputTotal += 0.value;
+            outputTotal += o.value;
         }
         if(inputTotal < outputTotal){return false;}
         return true;
