@@ -16,3 +16,8 @@ Transaction.java = ScroogeCoin transaction and has inner classes Transaction.Out
 -- Digital signature
 -- To be valid the signature must be valid signature over current transaction with the public key in the spent output
 
+#######################Implementation######################
+1. Detect duplicate output
+- We have an object that 
+
+2. Are we guarenteed to have the same number of inputs and outputs?

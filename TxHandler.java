@@ -1,13 +1,14 @@
 public class TxHandler {
 
+
+    UTXOPool pool;
     /**
      * Creates a public ledger whose current UTXOPool (collection of unspent transaction outputs) is
      * {@code utxoPool}. This should make a copy of utxoPool by using the UTXOPool(UTXOPool uPool)
      * constructor.
      */
     public TxHandler(UTXOPool utxoPool) {
-        // IMPLEMENT THIS
-        UTXOPool(utxoPool); 
+        pool = new UTXOPool(utxoPool); 
     }
 
     /**
@@ -20,7 +21,39 @@ public class TxHandler {
      *     values; and false otherwise.
      */
     public boolean isValidTx(Transaction tx) {
-        
+
+        ArrayList<UTXO> in_outs = new ArrayList<UTXO>(); //sublime highlighting bug?
+        int inputTotal = 0;
+        int outputTotal = 0;
+        for(int i = 0; i < tx.numInputs(); i++){
+            Transaction.Input in = tx.getInput(i);
+            UTXO u = new UTXO(prevTxHash, outputIndex);
+            Transaction.Output o = pool.getTxOutput(u);
+
+            //(1) 
+            if(o == null){return false;}
+            //(2) 
+            if(!Crypto.verifySignature(o.address,
+                tx.getRawDataToSign(i), 
+                in.signature)){
+                return false; 
+            }
+            //(3) Can be more efficient? 
+            if(in_outs.contains(u)){return false;} 
+            else {in_outs.add(u);}
+            //(5)
+            inputTotal += o.value;
+
+        }
+        for(int i = 0; i < tx.numOutputs(); i++){
+            //(4) 
+            Transaction.Output o = tx.getOutput(i);
+            if(o.value < 0){return false;}
+            //(5)
+            outputTotal += 0.value;
+        }
+        if(inputTotal < outputTotal){return false;}
+        return true;
     }
 
     /**
@@ -30,6 +63,7 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
         // IMPLEMENT THIS
+        return null;
     }
 
 }
