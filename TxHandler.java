@@ -24,15 +24,18 @@ public class TxHandler {
     public boolean isValidTx(Transaction tx) {
 
         ArrayList<UTXO> in_outs = new ArrayList<UTXO>(); //sublime highlighting bug?
-        int inputTotal = 0;
-        int outputTotal = 0;
-        for(int i = 0; i < tx.numInputs(); i++){
+        double inputTotal = 0;
+        double outputTotal = 0;
+        int n = tx.numInputs();
+        for(int i = 0; i < n; i++){
             Transaction.Input in = tx.getInput(i);
             UTXO u = new UTXO(in.prevTxHash, in.outputIndex);
             Transaction.Output o = pool.getTxOutput(u);
 
             //(1) 
-            if(o == null){return false;}
+            if(o == null){
+            	return false;
+            }
             //(2) 
             if(!Crypto.verifySignature(o.address,
                 tx.getRawDataToSign(i), 
@@ -40,19 +43,27 @@ public class TxHandler {
                 return false; 
             }
             //(3) Can be more efficient? 
-            if(in_outs.contains(u)){return false;} 
-            else {in_outs.add(u);}
+            if(in_outs.contains(u)){
+            	return false;
+            } else {
+            	in_outs.add(u);
+            }
             //(5)
             inputTotal += o.value;
         }
-        for(int i = 0; i < tx.numOutputs(); i++){
+        n = tx.numOutputs();
+        for(int i = 0; i < n; i++){
             //(4) 
             Transaction.Output o = tx.getOutput(i);
-            if(o.value < 0){return false;}
+            if(o.value < 0){
+            	return false;
+            }
             //(5)
             outputTotal += o.value;
         }
-        if(inputTotal < outputTotal){return false;}
+        if(inputTotal < outputTotal){
+        	return false;
+        }
         return true;
     }
 
@@ -62,11 +73,22 @@ public class TxHandler {
      * updating the current UTXO pool as appropriate.
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
-        List<Transaction> v_trans = new ArrayList<Transaction>();
+        ArrayList<Transaction> v_trans = new ArrayList<Transaction>();
         for(int i = 0; i < possibleTxs.length; i++){
             Transaction t = possibleTxs[i];
-            if(t.isValidTx()){
+            if(isValidTx(t)){
                 v_trans.add(t);
+                //Remove all the unspent transactions that are now going to be spent
+                for(int j = 0; j < t.numInputs(); j++){
+                    Transaction.Input in = t.getInput(j);
+                    UTXO u = new UTXO(in.prevTxHash, in.outputIndex);
+                    pool.removeUTXO(u);
+                }
+                for(int k = 0; k < t.numOutputs(); k++){
+                	Transaction.Output o = t.getOutput(k);
+                	UTXO u = new UTXO(t.getHash() , k);
+                	pool.addUTXO(u, o);
+                }
             }
         }
         return v_trans.toArray(new Transaction[v_trans.size()]);
